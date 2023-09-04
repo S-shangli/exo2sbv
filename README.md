@@ -20,3 +20,4 @@ AviUtlのエキスポートファイルから字幕ファイル(sbv)ファイル
   * S-shangli/exo2srt.py
 * Original Gist
   * pandanote-info/exo2srt.py
+* exeファイルの作り方 `pyinstaller --onefile exo2sbv.py`
