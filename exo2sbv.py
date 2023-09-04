@@ -7,6 +7,7 @@
 
 import io
 import sys
+import os
 import re
 import codecs
 from struct import *
@@ -40,10 +41,34 @@ def formatForSrt(s):
 	m = int(hm%60)
 	return ("{0:02d}:{1:02d}:{2:06.3f}".format(h,m,sec));
 
-# 標準入力，標準出力，標準エラー出力の文字コードを変更する．
-sys.stdin = io.TextIOWrapper(sys.stdin.buffer,encoding='cp932')
 
-lines = sys.stdin.readlines()
+
+# check args
+if not( len(sys.argv) == 2 ):
+    print("Error: invalid args.", file=sys.stderr)
+    print("\n使い方: exoファイルをドラッグ＆ドロップしてみてください.\n")
+    input("[Enter]キーで終了\n")
+    sys.exit(1)
+
+
+filepath = sys.argv[1]
+# check input file
+if not os.path.isfile(filepath):
+    print(f"Error: \"{filepath}\" is not exist.", file=sys.stderr)
+    sys.exit(1)
+#print(f"{filepath}")
+
+
+f_in = open(filepath, 'r' , encoding="CP932")
+try:
+    lines = f_in.read()
+except Exception as e:
+    print(f"{e.__class__.__name__}: {e}", file=sys.stderr)
+    print("\n使い方: exoファイルをドラッグ＆ドロップしてみてください.\n")
+    input("[Enter]キーで終了\n")
+    sys.exit(1)
+f_in.close()
+
 sid = 0
 element = {}
 start_ = 0
@@ -54,7 +79,7 @@ fps_calc_rate=0
 fps_calc_scale=0
 exedit_element_flg=0 # 0:not_started 1:probing 2:finished
 
-for line in lines:
+for line in lines.split("\n"):
 
 	# calculate fps from exofile
 	if fps_calc == 0:
@@ -101,6 +126,11 @@ for line in lines:
 						end_ = m4.group(2)
 
 
+filepath_out = filepath + ".sbv"
+f_out = open(filepath_out, 'w' , encoding="UTF-8")
+
 for k,v in sorted(element.items()):
-	print (formatForSrt(int(v.start)-1)+","+formatForSrt(int(v.end))+"\n"+v.text+"\n")
+	f_out.write(formatForSrt(int(v.start)-1)+","+formatForSrt(int(v.end))+"\n"+v.text+"\n\n")
+
+f_out.close()
 
